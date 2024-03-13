@@ -1,11 +1,11 @@
 import { MetadataRoute } from 'next'
-import { allBlogs } from 'contentlayer/generated'
+// import { allBlogs } from 'contentlayer/generated'
 import siteMetadata from '@/data/siteMetadata'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = siteMetadata.siteUrl
 
-  const blogRoutes = allBlogs
+  const blogRoutes = []
     .filter((post) => !post.draft)
     .map((post) => ({
       url: `${siteUrl}/${post.path}`,

@@ -5,14 +5,14 @@ import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer'
-import { allBlogs, allAuthors } from 'contentlayer/generated'
-import type { Authors, Blog } from 'contentlayer/generated'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
 import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
+import { getArticles } from 'api/article'
+import { getAuthors } from 'api/author'
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -27,8 +27,9 @@ export async function generateMetadata({
   params: { slug: string[] }
 }): Promise<Metadata | undefined> {
   const slug = decodeURI(params.slug.join('/'))
-  const post = allBlogs.find((p) => p.slug === slug)
+  const post = await getArticles()
   const authorList = post?.authors || ['default']
+  const allAuthors = await getAuthors()
   const authorDetails = authorList.map((author) => {
     const authorResults = allAuthors.find((p) => p.slug === author)
     return coreContent(authorResults as Authors)
@@ -75,6 +76,7 @@ export async function generateMetadata({
 }
 
 export const generateStaticParams = async () => {
+  const allBlogs = await getArticles()
   const paths = allBlogs.map((p) => ({ slug: p.slug.split('/') }))
 
   return paths
@@ -83,6 +85,8 @@ export const generateStaticParams = async () => {
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const slug = decodeURI(params.slug.join('/'))
   // Filter out drafts in production
+  const allBlogs = await getArticles()
+  const allAuthors = await getAuthors()
   const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
   if (postIndex === -1) {

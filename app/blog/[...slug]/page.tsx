@@ -93,9 +93,9 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
   // if (postIndex === -1) {
   //   return notFound()
   // }
-  const postIndex = 2
-  const prev = await getArticles('' + (postIndex + 1))
-  const next = await getArticles('' + (postIndex - 1))
+  const postIndex = 1
+  const prev = await getArticles(articleId)
+  const next = await getArticles(articleId)
   const authorList = post?.authors || ['default']
   console.log(authorList)
   const authorDetails = await Promise.all(

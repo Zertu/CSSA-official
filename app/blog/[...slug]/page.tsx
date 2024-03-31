@@ -26,25 +26,26 @@ export async function generateMetadata({
 }: {
   params: { slug: string[] }
 }): Promise<Metadata | undefined> {
-  const slug = decodeURI(params.slug.join('/'))
-  const post = await getArticles()
+  const articleId = params.slug[0]
+  const post = await getArticles(articleId)
   const authorList = post?.authors || ['default']
-  const allAuthors = await getAuthors()
-  const authorDetails = authorList.map((author) => {
-    const authorResults = allAuthors.find((p) => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
+  // const allAuthors = await getAuthors()
+  const authorDetails = await Promise.all(
+    authorList.map(async (i) => {
+      const detail = await getAuthors(i)
+      return detail
+    })
+  )
   if (!post) {
     return
   }
-
-  const publishedAt = new Date(post.date).toISOString()
-  const modifiedAt = new Date(post.lastmod || post.date).toISOString()
-  const authors = authorDetails.map((author) => author.name)
-  let imageList = [siteMetadata.socialBanner]
-  if (post.images) {
-    imageList = typeof post.images === 'string' ? [post.images] : post.images
-  }
+  const publishedAt = new Date(post.created_at).toISOString()
+  const modifiedAt = new Date(post.updated_at || post.created_at).toISOString()
+  const { authors } = post
+  const imageList = [siteMetadata.socialBanner]
+  // if (post.images) {
+  //   imageList = typeof post.images === 'string' ? [post.images] : post.images
+  // }
   const ogImages = imageList.map((img) => {
     return {
       url: img.includes('http') ? img : siteMetadata.siteUrl + img,
@@ -77,49 +78,52 @@ export async function generateMetadata({
 
 export const generateStaticParams = async () => {
   const allBlogs = await getArticles()
-  const paths = allBlogs.map((p) => ({ slug: p.slug.split('/') }))
+  // const paths = allBlogs.map((p) => ({ slug: p.slug.split('/') }))
 
-  return paths
+  return ''
 }
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const slug = decodeURI(params.slug.join('/'))
   // Filter out drafts in production
-  const allBlogs = await getArticles()
+  const articleId = params.slug[0]
+  const post = await getArticles(articleId)
   const allAuthors = await getAuthors()
-  const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
-  const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
-  if (postIndex === -1) {
-    return notFound()
-  }
-
-  const prev = sortedCoreContents[postIndex + 1]
-  const next = sortedCoreContents[postIndex - 1]
-  const post = allBlogs.find((p) => p.slug === slug) as Blog
+  // const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
+  // if (postIndex === -1) {
+  //   return notFound()
+  // }
+  const postIndex = 2
+  const prev = await getArticles('' + (postIndex + 1))
+  const next = await getArticles('' + (postIndex - 1))
   const authorList = post?.authors || ['default']
-  const authorDetails = authorList.map((author) => {
-    const authorResults = allAuthors.find((p) => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
+  console.log(authorList)
+  const authorDetails = await Promise.all(
+    authorList.map(async (i) => {
+      const detail = await getAuthors(i)
+      return detail
+    })
+  )
+  console.log(authorDetails)
   const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map((author) => {
-    return {
-      '@type': 'Person',
-      name: author.name,
-    }
-  })
+  // const jsonLd = post.structuredData
+  // jsonLd['author'] = authorDetails.map((author) => {
+  //   return {
+  //     '@type': 'Person',
+  //     name: author.name,
+  //   }
+  // })
 
   const Layout = layouts[post.layout || defaultLayout]
 
   return (
     <>
-      <script
+      {/* <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      /> */}
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+        <MDXLayoutRenderer code={''} components={components} toc={post.toc} />
       </Layout>
     </>
   )

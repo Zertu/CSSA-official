@@ -1,6 +1,6 @@
 import { get, post, put, deleteReq } from './index'
-async function getAuthors(params = null) {
-  return get('author', params)
+async function getAuthors(params = '') {
+  return get(`author${!params ? '' : `/${params}`}`)
 }
 
 async function createAuthor(articleData, params = null) {

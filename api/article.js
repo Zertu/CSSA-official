@@ -1,6 +1,6 @@
 import { get, post, put, deleteReq } from './index'
-async function getArticles(params = null) {
-  return get('articles', params)
+async function getArticles(params = '') {
+  return get(`articles${!params ? '' : `/${params}`}`)
 }
 
 async function createArticle(articleData, params = null) {

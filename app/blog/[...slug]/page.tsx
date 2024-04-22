@@ -3,7 +3,6 @@ import 'katex/dist/katex.css'
 
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
@@ -13,6 +12,7 @@ import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
 import { getArticles } from 'api/article'
 import { getAuthors } from 'api/author'
+import PostRender from '@/components/PostRender'
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -39,6 +39,7 @@ export async function generateMetadata({
   if (!post) {
     return
   }
+  console.log(new Date(post.created_at).toISOString())
   const publishedAt = new Date(post.created_at).toISOString()
   const modifiedAt = new Date(post.updated_at || post.created_at).toISOString()
   const { authors } = post
@@ -67,20 +68,7 @@ export async function generateMetadata({
       images: ogImages,
       authors: authors.length > 0 ? authors : [siteMetadata.author],
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.summary,
-      images: imageList,
-    },
   }
-}
-
-export const generateStaticParams = async () => {
-  const allBlogs = await getArticles()
-  // const paths = allBlogs.map((p) => ({ slug: p.slug.split('/') }))
-
-  return ''
 }
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
@@ -115,7 +103,7 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
   // })
 
   const Layout = layouts[post.layout || defaultLayout]
-
+  console.log(post)
   return (
     <>
       {/* <script
@@ -123,7 +111,7 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       /> */}
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={''} components={components} toc={post.toc} />
+        <PostRender {...post} />
       </Layout>
     </>
   )

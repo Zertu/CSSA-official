@@ -30,8 +30,10 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
-  const { filePath, path, slug, date, title, tags } = content
-  const basePath = path.split('/')[0]
+  const { filePath, path, slug, title, tags, created_at } = content
+  console.log(content)
+  console.log('22222222222222')
+  const basePath = ''
 
   return (
     <SectionContainer>
@@ -44,8 +46,11 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                 <div>
                   <dt className="sr-only">Published on</dt>
                   <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                    <time dateTime={date}>
-                      {new Date(date).toLocaleDateString(siteMetadata.locale, postDateTemplate)}
+                    <time dateTime={created_at}>
+                      {new Date(created_at).toLocaleDateString(
+                        siteMetadata.locale,
+                        postDateTemplate
+                      )}
                     </time>
                   </dd>
                 </div>
@@ -62,7 +67,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                 <ul className="flex flex-wrap justify-center gap-4 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8">
                   {authorDetails.map((author) => (
                     <li className="flex items-center space-x-2" key={author.name}>
-                      {author.avatar && (
+                      {/* {author.avatar && (
                         <Image
                           src={author.avatar}
                           width={38}
@@ -70,11 +75,11 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                           alt="avatar"
                           className="h-10 w-10 rounded-full"
                         />
-                      )}
+                      )} */}
                       <dl className="whitespace-nowrap text-sm font-medium leading-5">
                         <dt className="sr-only">Name</dt>
                         <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
-                        <dt className="sr-only">Twitter</dt>
+                        {/* <dt className="sr-only">Twitter</dt>
                         <dd>
                           {author.twitter && (
                             <Link
@@ -84,7 +89,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                               {author.twitter.replace('https://twitter.com/', '@')}
                             </Link>
                           )}
-                        </dd>
+                        </dd> */}
                       </dl>
                     </li>
                   ))}
@@ -100,14 +105,14 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                 {` • `}
                 <Link href={editUrl(filePath)}>View on GitHub</Link>
               </div>
-              {siteMetadata.comments && (
+              {/* {siteMetadata.comments && (
                 <div
                   className="pb-6 pt-6 text-center text-gray-700 dark:text-gray-300"
                   id="comment"
                 >
                   <Comments slug={slug} />
                 </div>
-              )}
+              )} */}
             </div>
             <footer>
               <div className="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">

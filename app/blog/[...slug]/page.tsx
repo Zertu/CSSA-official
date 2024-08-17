@@ -39,7 +39,6 @@ export async function generateMetadata({
   if (!post) {
     return
   }
-  console.log(new Date(post.created_at).toISOString())
   const publishedAt = new Date(post.created_at).toISOString()
   const modifiedAt = new Date(post.updated_at || post.created_at).toISOString()
   const { authors } = post

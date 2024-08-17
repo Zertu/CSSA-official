@@ -1,15 +1,14 @@
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import { slug } from 'github-slugger'
-import tagData from 'app/tag-data.json'
 import { genPageMetadata } from 'app/seo'
+import { getTags } from 'api/tag'
 
 export const metadata = genPageMetadata({ title: 'Tags', description: 'Things I blog about' })
 
 export default async function Page() {
-  const tagCounts = tagData as Record<string, number>
+  const tagCounts = await getTags()
   const tagKeys = Object.keys(tagCounts)
-  const sortedTags = tagKeys.sort((a, b) => tagCounts[b] - tagCounts[a])
   return (
     <>
       <div className="flex flex-col items-start justify-start divide-y divide-gray-200 dark:divide-gray-700 md:mt-24 md:flex-row md:items-center md:justify-center md:space-x-6 md:divide-y-0">
@@ -20,16 +19,16 @@ export default async function Page() {
         </div>
         <div className="flex max-w-lg flex-wrap">
           {tagKeys.length === 0 && 'No tags found.'}
-          {sortedTags.map((t) => {
+          {tagCounts.map((t) => {
             return (
-              <div key={t} className="mb-2 mr-5 mt-2">
-                <Tag text={t} />
+              <div key={t.id} className="mb-2 mr-5 mt-2">
+                <Tag text={t.tag_name} link={t.id} />
                 <Link
-                  href={`/tags/${slug(t)}`}
+                  href={`/tags/${slug(t.id)}`}
                   className="-ml-2 text-sm font-semibold uppercase text-gray-600 dark:text-gray-300"
-                  aria-label={`View posts tagged ${t}`}
+                  aria-label={`View posts tagged ${t.tag_count}`}
                 >
-                  {` (${tagCounts[t]})`}
+                  {` (${t.tag_count})`}
                 </Link>
               </div>
             )
